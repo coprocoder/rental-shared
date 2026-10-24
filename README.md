@@ -19,10 +19,10 @@
 }
 ```
 
-⚠️ **Репозиторий приватный.** `npm ci` нужен доступ к GitHub: на машине
-разработчика — тот, которым уже ходит git; в Docker — секрет BuildKit
-`github_token` (см. `deploy/push.sh` потребителей); в CI — секрет
-`RENTAL_SHARED_TOKEN`.
+⚠️ **Репозиторий публичный** — так `npm ci` в CI и Docker не нужен токен.
+Lock-файл потребителя пишет адрес по ssh; где ssh-ключа нет (CI, Docker),
+его переводят на https: `git config url."https://github.com/".insteadOf
+ssh://git@github.com/`.
 
 ⚠️ `@rental/ui` потребитель подключает так, чтобы Vite и vitest его
 компилировали, а не брали как готовую зависимость: `optimizeDeps.exclude`
