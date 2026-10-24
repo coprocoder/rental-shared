@@ -7,40 +7,53 @@
 | `common/` → `@rental/common` | телефон, сезон, статусы заказа — то, что обе стороны обязаны понимать одинаково | собранный JS + `.d.ts` в `common/dist` (сервер исполняет его сам) |
 | `ui/` → `@rental/ui` | UI-кит: компоненты Vue, токены, тёмная тема, тосты | исходниками: `.vue` собирает Vite потребителя |
 
-## Подключение
+## Подключение — подмодулем
 
-По тегу, из git — без реестра пакетов:
+Потребители (`rental`, `rental-backend`) держат этот репозиторий подмодулем
+в `shared/` и ссылаются на пакеты как на локальные:
 
 ```json
 "dependencies": {
-  "rental-shared": "github:coprocoder/rental-shared#v0.1.0",
-  "@rental/common": "file:node_modules/rental-shared/common",
-  "@rental/ui": "file:node_modules/rental-shared/ui"
+  "@rental/common": "file:shared/common",
+  "@rental/ui": "file:shared/ui"
 }
 ```
 
-⚠️ **Репозиторий публичный** — так `npm ci` в CI и Docker не нужен токен.
-Lock-файл потребителя пишет адрес по ssh; где ssh-ключа нет (CI, Docker),
-его переводят на https: `git config url."https://github.com/".insteadOf
-ssh://git@github.com/`.
-
-⚠️ `@rental/ui` потребитель подключает так, чтобы Vite и vitest его
-компилировали, а не брали как готовую зависимость: `optimizeDeps.exclude`
-и `server.deps.inline` (см. `vite.config.ts` и `vitest.workspace.ts` фронта).
-
-## Выпуск версии
-
 ```bash
-make check            # типы, тесты, dist совпадает с исходниками
-git tag v0.X.Y && git push origin master v0.X.Y
+git clone --recurse-submodules …     # или после clone: make setup
 ```
 
-Затем перевести потребителей: `./bump.sh ../rental v0.X.Y` и
-`./bump.sh ../rental-backend v0.X.Y` (обычный `npm install` на смене тега
-падает — почему, сказано в шапке скрипта), `make check` в каждом, коммит
-`package.json` и `package-lock.json`. ⚠️ Версия в двух
-потребителях может различаться только на время перехода: подписи
-статусов, разбор телефона и сезон обязаны совпадать у клиента и сервера.
+**Правка — на месте, в любом из потребителей:**
+
+```bash
+cd shared && git switch master && git commit -am "…" && git push   # сюда
+cd .. && git add shared && git commit -m "shared: …"               # указатель
+```
+
+Второй потребитель подтягивает: `git -C shared pull && git add shared`.
+
+⚠️ **Главная ловушка — указатель на незапушенный коммит.** Локально всё
+зелёное, а CI, Docker-сборка и соседний репо этого коммита не найдут.
+Держат две вещи у потребителя: `make setup` ставит
+`push.recurseSubmodules=check` (git откажется пушить родителя), `make check`
+начинается с `shared-pushed`.
+
+⚠️ Версия в двух потребителях может различаться только на время перехода:
+подписи статусов, разбор телефона и сезон обязаны совпадать у клиента и
+сервера.
+
+⚠️ Кит лежит вне `node_modules` потребителя, и его `import 'vue'` ищется от
+`shared/ui` вверх. Если здесь поставлены свои зависимости (для тестов),
+найдётся вторая копия vue — у потребителя `resolve.dedupe` в Vite и vitest.
+
+## Перед пушем
+
+```bash
+make check            # типы, тесты, dist common совпадает с исходниками
+```
+
+То же гоняет CI этого репозитория. Теги больше не нужны: версия — коммит,
+на который указывает подмодуль.
 
 ## Что сюда НЕ попадает
 

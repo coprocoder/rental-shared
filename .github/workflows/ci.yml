@@ -1,0 +1,22 @@
+# Проверки общего кода — те же, что `make check` локально.
+#
+# ⚠️ Подключён подмодулем к rental и rental-backend: их CI видит только
+# указатель на коммит, а не то, проходит ли он свои тесты. Здесь — проходит.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.4
+          cache: npm
+      - run: npm ci
+      - run: make check
