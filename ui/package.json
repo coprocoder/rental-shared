@@ -1,0 +1,19 @@
+{
+  "name": "@rental/ui",
+  "version": "0.1.0",
+  "description": "UI-кит проката: компоненты Vue, токены, оформление",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./*.vue": "./src/*.vue"
+  },
+  "files": ["src"],
+  "sideEffects": ["*.css", "*.vue"],
+  "peerDependencies": {
+    "@internationalized/date": "^3.12.0",
+    "@rental/common": "^0.1.0",
+    "reka-ui": "^2.10.0",
+    "vue": "^3.5.0"
+  }
+}

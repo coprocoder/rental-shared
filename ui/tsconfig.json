@@ -1,0 +1,18 @@
+{
+  // ⚠️ Пакет поставляется ИСХОДНИКАМИ: .vue собирает Vite потребителя.
+  // Здесь только проверка типов с той же строгостью, что у фронта, —
+  // иначе ошибка кита всплыла бы при сборке витрины.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "env.d.ts"]
+}
